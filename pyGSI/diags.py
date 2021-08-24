@@ -5,6 +5,8 @@ from datetime import datetime
 from pathlib import Path
 
 _VALID_LVL_TYPES = ["pressure", "height"]
+_VALID_DIAG_TYPES = ["omf", "o-f", "omb", "o-b", "oma", "o-a", "observation", "hofx"]
+
 
 class GSIdiag:
 
@@ -208,37 +210,47 @@ class Conventional(GSIdiag):
         OUTPUT:
             data   : requested data
         """
-        
+
+       
+        print( "==> get_data" )
+ 
+        if diag_type not in _VALID_DIAG_TYPES:
+            raise ValueError(f'{diag_type} wrong. Valid choices are: {" | ".join(_VALID_DIAG_TYPES)}')
+
         self.metadata['Diag Type'] = diag_type
         self.metadata['ObsID'] = obsid
         self.metadata['Subtype'] = subtype
         self.metadata['Station ID'] = station_id
         self.metadata['Anl Use'] = analysis_use
+        self.metadata['Level Use'] = False
+        self.metadata['Level Type'] = lvl_type
 
+        print( F"lvls = {lvls}" )
         if lvls is not None:
 
             if lvl_type not in _VALID_LVL_TYPES:
-                raise ValueError('{lvl_type} wrong, use "pressure" or "height" for input lvl_type'.format(lvl_type=repr(lvl_type)))
+                raise ValueError(f'{lvl_type} wrong. Valid choices are: {" | ".join(_VALID_LVL_TYPES)}')
 
+            self.metadata['Level Use'] = True
             level_list = lvls
             binned_data = {}
 
+            print( F"analysis_use = {analysis_use}" )
             if analysis_use:
                 assimilated_idx, monitored_idx = self._get_idx_conv(
                     obsid, subtype, station_id, analysis_use)
 
-
                 for i, low_bound in enumerate(level_list[:-1]):
                     if lvl_type == 'height':
-                       hght_idx = np.where((self.height > level_list[i]) & (
-                           self.height < level_list[i+1]))
+                       hght_idx = np.where((self.height > int(level_list[i])) & (
+                           self.height < int(level_list[i+1])))
                        valid_assimilated_idx = np.isin(
                            assimilated_idx[0], hght_idx[0])
                        valid_monitored_idx = np.isin(
                            monitored_idx[0], hght_idx[0])
                     else:
-                       pres_idx = np.where((self.press > level_list[i]) & (
-                           self.press <= level_list[i+1]))
+                       pres_idx = np.where((self.press > int(level_list[i])) & (
+                           self.press <= int(level_list[i+1])))
                        valid_assimilated_idx = np.isin(
                            assimilated_idx[0], pres_idx[0])
                        valid_monitored_idx = np.isin(
@@ -284,17 +296,16 @@ class Conventional(GSIdiag):
                 for i, low_bound in enumerate(level_list[:-1]):
 
                     if lvl_type == 'height':
-                       hght_idx = np.where((self.height > level_list[i]) & (
-                           self.height < level_list[i+1]))
+                       hght_idx = np.where((self.height > int(level_list[i])) & (
+                           self.height < int(level_list[i+1])))
                        valid_idx = np.isin(idx[0], hght_idx[0])
                        pidx = np.where(valid_idx)
 
                     else:
-                       pres_idx = np.where((self.press > level_list[i]) & (
-                           self.press < level_list[i+1]))
+                       pres_idx = np.where((self.press > int(level_list[i])) & (
+                           self.press < int(level_list[i+1])))
                        valid_idx = np.isin(idx[0], pres_idx[0])
                        pidx = np.where(valid_idx)
-
 
                     if self.variable == 'uv':
                         u, v = self.query_diag_type(diag_type, pidx)
@@ -358,15 +369,17 @@ class Conventional(GSIdiag):
 
                     return data
 
+
+
     def _get_idx_conv(self, obsid=None, subtype=None, station_id=None, analysis_use=False):
         """
         Given parameters, get the indices of the observation
         locations from a conventional diagnostic file
         INPUT:
             obsid   : observation measurement ID number
-            qcflag  : qc flag (default: None) i.e. 0, 1
             subtype : subtype number (default: None)
             station_id : station id tag (default: None)
+            analysis_use: true = assim & monitored (default: False)
         OUTPUT:
             idx    : indices of the requested data in the file
         """
@@ -396,7 +409,6 @@ class Conventional(GSIdiag):
                 valid_idx = np.logical_and(valid_idx, valid_stnid_idx)
 
             idx = np.where(valid_idx)
-
             return idx
 
         else:
@@ -436,6 +448,7 @@ class Conventional(GSIdiag):
             monitored_idx = np.where(valid_monitored_idx)
 
             return assimilated_idx, monitored_idx
+
 
     def get_lat_lon(self, obsid=None, subtype=None, station_id=None, analysis_use=False, lvls=None, lvl_type='pressure'):
         """
