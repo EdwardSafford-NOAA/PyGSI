@@ -3,24 +3,25 @@ diagnostic:
     analysis use:
     - true
     data type:
-    - omf
+    - observation
     observation id:
-    - 265 
+#    - 265 
 #    - 5
-#    - 220
+    - 220
     observation subtype:
-    - 0
+    - 00
     levels: 
-    - 0, 2500 , 5000,7500 ,10000 , 12500 ,15000,17500,20000,22500,25000,27500,30000,32500,35000,37500,40000,42500,45000,47500,50000,52500,55000,57500,60000
-#     - 0,50,100,150,250,300,400,600,800,900,1000
+#    - 0, 2500 , 5000,7500 ,10000 , 12500 ,15000,17500,20000,22500,25000,27500,30000,32500,35000,37500,40000,42500,45000,47500,50000,52500,55000,57500,60000
+     - 0,50,100,150,250,300,400,600,800,900,1000
     level type:
-#    - pressure
-    - height
+    - pressure
+#    - height
     path:
-     - /scratch1/NCEPDEV/da/Edward.Safford/noscrub/test_data/diag_conv_gps_ges.2021060518.nc4
-#     - /scratch1/NCEPDEV/da/Edward.Safford/noscrub/test_data/diag_conv_gps_anl.2020040306.nc4
+#    - /scratch1/NCEPDEV/da/Edward.Safford/noscrub/test_data/diag_conv_gps_ges.2021060518.nc4
+#    - /scratch1/NCEPDEV/da/Edward.Safford/noscrub/test_data/diag_conv_gps_anl.2020040306.nc4
 #    - /scratch2/NCEPDEV/stmp1/Kevin.Dougherty/ncDiags/gdas.20200920/00/atmos/diag_conv_gps_ges.2020092000.nc4
-#    - /scratch2/NCEPDEV/stmp1/Kevin.Dougherty/ncDiags/gdas.20200920/00/atmos/diag_conv_uv_ges.2020092000.nc4
+    - /scratch2/NCEPDEV/stmp1/Kevin.Dougherty/ncDiags/gdas.20200920/00/atmos/diag_conv_uv_ges.2020092000.nc4
+#    - /scratch2/NCEPDEV/stmp1/Kevin.Dougherty/ncDiags/gdas.20200920/00/atmos/diag_conv_t_ges.2020092000.nc4
     plot type: &id001
 #    - histogram
 #    - spatial

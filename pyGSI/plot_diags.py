@@ -688,13 +688,11 @@ def _create_spatial_plot(data, metadata, lats, lons,
 def _create_vertical_plot(data, metadata, outdir='./'):
 
     print('--> _create_vertical_plot')
-    print(f'     metadata = {metadata}')
 
     fig = plt.figure(figsize=(10, 8))
     ax1 = fig.add_subplot(111)
 
     if len(data) <= 0:
-        print('data.size <= 0')
         ax1.text(.5, .5, 'No Data', fontsize=32, alpha=0.6, ha='center', transform=ax1.transAxes)
 
     else:
@@ -706,8 +704,6 @@ def _create_vertical_plot(data, metadata, outdir='./'):
         vert_bin = []
 
         for key in data:
-            print(F"key = {key}")
-
             nobs = ( np.count_nonzero(data[key]) )
             count.append( nobs )
 
@@ -717,7 +713,7 @@ def _create_vertical_plot(data, metadata, outdir='./'):
                 r = 0.0
             rmse.append( r )
 
-            # use the average of key value pair to set the interval value
+            # use the average of key value pair to set the interval value for the plot
             key_vals = key.split('-')
             ii = (int(key_vals[0]) + int(key_vals[1]))/2
 
@@ -1044,85 +1040,28 @@ def plot_binned_spatial(data, metadata, binned_var=None, binsize='1x1', outdir='
     plt.close('all')
 
 
-#def plot_vertical(data1, data2, pressure1, pressure2, metadata1, metadata2, var_name=None):
-#
-#    print('--> plot_vertical type 1')
-#
-#    # set figure params one time only.
-#    rcParams['figure.subplot.left'] = 0.1
-#    rcParams['figure.subplot.top'] = 0.85
-#    rcParams['legend.fontsize'] = 12
-#    rcParams['axes.grid'] = True
-#
-#    fig = plt.figure(figsize=(10, 8))
-#    ax = fig.add_subplot(111)
-#
-#    if data1.size == 0 and data2.size == 0:
-#        ax.text(.5, .5, 'No Data', fontsize=32, alpha=0.6, ha='center', transform=ax.transAxes)
-#
-#    else:
-#        ax.plot(data1, pressure1, color='k', label=f"Obs ID: {metadata1['ObsID']}")
-#        ax.plot(data2, pressure2, color='r', label=f"Obs ID: {metadata2['ObsID']}")
-#        plt.legend()
-#
-#    if metadata1['Variable'] == 'uv':
-#        var_unit = 'm/s'
-#    elif metadata1['Variable'] == 't':
-#        var_unit = 'K'
-#        var_name = 'Temperature'
-#    elif metadata1['Variable'] == 'q':
-#        var_unit = 'g/kg'
-#        var_name = 'Specific Humidity'
-#    elif metadata1['Variable'] == 'gps':
-#        var_unit = 'g/kg'
-#        var_name = 'NOT Specific Humidity'
-#
-#    datestr = metadata1['Date'].strftime('%Y%m%d%H')
-#
-#    title = f"{var_name} - {metadata1['Diag Type']}\nStation ID: {metadata1['Station ID'][0]}"
-#
-#    plt.title(title, loc='left', fontsize=14)
-#    plt.title(datestr, loc='right', fontweight='semibold', fontsize=14)
-#    plt.ylabel('Pressure (hPa)', fontsize=13)
-#    plt.ylim(1020, 100)
-##     ax.set_yscale('log')
-#    ax.yaxis.set_major_locator(ticker.LogLocator(base=10.0,
-#                               subs=np.arange(1, 10)))
-#    ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%g"))
-#    plt.xlabel(f'{var_name} ({var_unit})', fontsize=13)
-#
-#    savefilename = f"{datestr}_{var_name}_{metadata1['Station ID'][0]}_vertical_plot.png"
-#    plt.savefig(savefilename, bbox_inches='tight', pad_inches=0.1)
-#
-#    print('<-- plot_vertical type 1')
-#
-#    return
-
-
 def plot_vertical(data, metadata, outdir='./'):
-    print('--> plot_vertical type 2')
-    print('       metadata:')
-    print( metadata )
+    print('--> plot_vertical')
+    print(F'       metadata: {metadata}')
 
     if metadata['Diag File Type'] == 'conventional':
         metadata['ObsID Name'] = _get_obs_type(metadata['ObsID'])
-#        print("    metadata['ObsID Name'] = " + metadata['ObsID Name'][0] )
 
     # Handles analysis use data
     anl_use = True if 'Anl Use' in metadata and metadata['Anl Use'] else False
-    print("    anl_use = " + str(anl_use))
 
     if metadata['Diag File Type'] == 'conventional' and metadata['Variable'] == 'uv':
 
         if anl_use:
-            for anl_type in data.keys():
-                for variable in data[anl_type].keys():
+            for variable in data.keys():
+                for anl_type in data[variable].keys():
 
                     # Add variables to metadata
                     metadata['Variable'] = variable
                     metadata['Anl Use Type'] = anl_type
+                    my_data = data[variable][anl_type]
 
-#                    _create_histogram_plot(data[anl_type][variable], metadata, outdir=outdir)
+                    _create_vertical_plot(my_data, metadata, outdir=outdir)
             
             #metadata was being saved as windspeed, need to revert back to 'uv' for other plots
             metadata['Variable'] = 'uv'
@@ -1131,8 +1070,8 @@ def plot_vertical(data, metadata, outdir='./'):
             for variable in data.keys():
 
                 metadata['Variable'] = variable
-
-#                _create_histogram_plot(data[variable], metadata, outdir=outdir)
+                my_data = data[variable]
+                _create_vertical_plot(my_data, metadata, outdir=outdir)
             
             #metadata was being saved as windspeed, need to revert back to 'uv' for other plots
             metadata['Variable'] = 'uv'
@@ -1149,5 +1088,5 @@ def plot_vertical(data, metadata, outdir='./'):
             _create_vertical_plot(data, metadata, outdir=outdir)
 
 
-    print('<-- plot_vertical type 2')
+    print('<-- plot_vertical')
     return

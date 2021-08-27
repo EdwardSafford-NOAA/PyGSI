@@ -212,8 +212,6 @@ class Conventional(GSIdiag):
         """
 
        
-        print( "==> get_data" )
- 
         if diag_type not in _VALID_DIAG_TYPES:
             raise ValueError(f'{diag_type} wrong. Valid choices are: {" | ".join(_VALID_DIAG_TYPES)}')
 
@@ -225,7 +223,6 @@ class Conventional(GSIdiag):
         self.metadata['Level Use'] = False
         self.metadata['Level Type'] = lvl_type
 
-        print( F"lvls = {lvls}" )
         if lvls is not None:
 
             if lvl_type not in _VALID_LVL_TYPES:
@@ -235,7 +232,6 @@ class Conventional(GSIdiag):
             level_list = lvls
             binned_data = {}
 
-            print( F"analysis_use = {analysis_use}" )
             if analysis_use:
                 assimilated_idx, monitored_idx = self._get_idx_conv(
                     obsid, subtype, station_id, analysis_use)
@@ -307,12 +303,12 @@ class Conventional(GSIdiag):
                        valid_idx = np.isin(idx[0], pres_idx[0])
                        pidx = np.where(valid_idx)
 
+
                     if self.variable == 'uv':
                         u, v = self.query_diag_type(diag_type, pidx)
 
                         data = {'u': u,
                                 'v': v}
-
                         binned_data['%s-%s' %
                                         (level_list[i], level_list[i+1])] = data
 
