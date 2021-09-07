@@ -170,7 +170,10 @@ class Conventional(GSIdiag):
             self.time = f.variables['Time'][:]
             self.anl_use = f.variables['Analysis_Use_Flag'][:]
             self.stnid = f.variables['Station_ID'][:]
-            self.prepqc = f.variables['Prep_QC_Mark'][:]
+            try:
+                self.prepqc = f.variables['Prep_QC_Mark'][:]
+            except:
+                self.prepqc = f.variables['Setup_QC_Mark'][:]
             self.setupqc = f.variables['Prep_Use_Flag'][:]
             self.vqc = f.variables['Nonlinear_QC_Rel_Wgt'][:]
             self.input_err = f.variables['Errinv_Input'][:]
