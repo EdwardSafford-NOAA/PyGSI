@@ -235,7 +235,7 @@ class Conventional(GSIdiag):
         self.metadata['Anl Use'] = analysis_use
 
         if lvls is not None:
-
+       
             if lvl_type not in _VALID_LVL_TYPES:
                 raise ValueError('{lvl_type} wrong, use "pressure" or "height" for input lvl_type'.format(lvl_type=repr(lvl_type)))
 
@@ -500,7 +500,7 @@ class Conventional(GSIdiag):
 
             level_list = lvls
             binned_lats = {}
-            binned_lats = {}
+            binned_lons = {}
 
             if analysis_use:
                 assimilated_idx, rejected_idx, monitored_idx = self._get_idx_conv(
@@ -543,14 +543,23 @@ class Conventional(GSIdiag):
                 return binned_lats, binned_lons
 
             else:
+                binned_lats = {}
+                binned_lons = {}
+
                 idx = self._get_idx_conv(
                     obsid, subtype, station_id, analysis_use)
 
                 for i, low_bound in enumerate(level_list[:-1]):
-                    pres_idx = np.where((self.press > level_list[i]) & (
-                        self.press <= level_list[i+1]))
-                    valid_idx = np.isin(idx[0], pres_idx[0])
-                    pidx = np.where(valid_idx)
+                    if lvl_type == 'height':
+                        hght_idx = np.where((self.height >= level_list[i]) & (
+                            self.height < level_list[i+1]))
+                        valid_idx = np.isin(idx[0], hght_idx[0])
+                        pidx = np.where(valid_idx)
+                    else:
+                        pres_idx = np.where((self.press > level_list[i]) & (
+                            self.press <= level_list[i+1]))
+                        valid_idx = np.isin(idx[0], pres_idx[0])
+                        pidx = np.where(valid_idx)
 
                     binned_lats[low_bound] = self.lats[pidx]
                     binned_lons[low_bound] = self.lons[pidx]
