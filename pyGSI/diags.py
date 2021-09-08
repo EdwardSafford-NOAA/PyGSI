@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 _VALID_LVL_TYPES = ["pressure", "height"]
+_VALID_DIAG_TYPES = ["omf", "o-f", "omb", "o-b", "oma", "o-a", "observation", "hofx"]
 
 class GSIdiag:
 
@@ -227,7 +228,10 @@ class Conventional(GSIdiag):
         OUTPUT:
             data   : requested data
         """
-        
+       
+        if diag_type not in _VALID_DIAG_TYPES:
+            raise ValueError(f'{diag_type} wrong. Valid choices are: {" | ".join(_VALID_DIAG_TYPES)}') 
+
         self.metadata['Diag Type'] = diag_type
         self.metadata['ObsID'] = obsid
         self.metadata['Subtype'] = subtype
